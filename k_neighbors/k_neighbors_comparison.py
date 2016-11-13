@@ -4,6 +4,7 @@ from collections import Counter
 import pandas as pd
 import random
 from sklearn import preprocessing, model_selection, neighbors
+import time
 
 def k_neighbors(data, predict, k=3):
 	if len(data) >= k:
@@ -63,13 +64,20 @@ def run_scikit(df, n, test_size):
 
 		X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=test_size)
 
-		clf = neighbors.KNeighborsClassifier()
+		clf = neighbors.KNeighborsClassifier(algorithm='brute')
 		clf.fit(X_train, y_train)
 		accuracy = clf.score(X_test, y_test)
 		accuracies.append(accuracy)
 
 	return np.mean(accuracies)
 
+def measure(func, name, df):
+	start = time.clock()
+	accuracy = func(df) * 100.0
+	end = time.clock()
+	print("{} accuracy: {} %, time: {} s".format(name, accuracy, end - start))
+
+
 df = prepare_data()
-print("Homebrew accuracy: {}".format(run_homebrew(df, 5, 0.2)))
-print("Scikit-learn accuracy: {}".format(run_scikit(df, 5, 0.2)))
+measure(lambda df: run_homebrew(df, 5, 0.2), "Homebrew", df)
+measure(lambda df: run_scikit(df, 5, 0.2), "Scikit-learn", df)
