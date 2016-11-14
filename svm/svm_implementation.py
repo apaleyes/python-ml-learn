@@ -39,7 +39,33 @@ class SupportVectorMachine:
 			w = np.array([latest_optimum, latest_optimum])
 			optimized = False
 			while not optimized:
-				pass
+				b_range = np.arange(-1 * (self.max_feature_value * b_range_multiple),
+					                self.max_feature_value * b_range_multiple,
+					                step * b_multiple)
+				for b in b_range:
+					for transform in transforms:
+						w_t = w * transform
+						found_option = True
+						for yi in data:
+							for xi in data[yi]:
+								if yi * (np.dot(w_t, xi) + b) < 1
+									found_option = False
+									break
+							if not found_option:
+								break
+						if found_option:
+							opt_dict[np.lingalg.norm(w_t)] = [w_t, b]
+
+				if w[0] < 0:
+					optimized = True
+					print("Optimized a step: " + step)
+				else:
+					w = w - step
+
+		opt_choice = max([n for n in opt_dict])
+		self.w = opt_choice[0]
+		self.b = opt_choice[1]
+		latest_optimum = opt_choice[0][0] + step * 2
 
 
 	def predict(self, features):
