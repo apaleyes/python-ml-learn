@@ -1,0 +1,3 @@
+1. Linear regression: arbitrary dimensions
+2. K nearest neighbors: speed up
+3. SVM before kernels: arbitrary dimensions, separate out dimensions of w
