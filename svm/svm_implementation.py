@@ -28,7 +28,7 @@ class SupportVectorMachine:
 		step_sizes = [self.max_feature_value * 0.1,
 					  self.max_feature_value * 0.01,
 					  # high cost after this
-					  # self.max_feature_value * 0.001
+					  self.max_feature_value * 0.001
 					  ]
 
 		# extremely expensive
@@ -63,10 +63,11 @@ class SupportVectorMachine:
 				else:
 					w = w - step
 
-			opt_choice = max([n for n in opt_dict])
-			self.w = opt_dict[opt_choice][0]
-			self.b = opt_dict[opt_choice][1]
-			latest_optimum = opt_dict[opt_choice][0][0] + step * 2
+			opt_norm = min([n for n in opt_dict])
+			opt_choice = opt_dict[opt_norm]
+			self.w = opt_choice[0]
+			self.b = opt_choice[1]
+			latest_optimum = opt_choice[0][0] + step * 2
 
 
 	def predict(self, features):
@@ -87,16 +88,19 @@ class SupportVectorMachine:
 			pt2 = hyperplane(x2, w, b, v)
 			self.ax.plot([x1, x2], [pt1, pt2], style)
 
-		hyp_x_min = self.min_feature_value*0.9
+		hyp_x_min = np.sign(self.min_feature_value)*abs(self.min_feature_value)*1.1
 		hyp_x_max = self.max_feature_value*1.1
 
 		# posivite support vector hyperplane
 		plot_hyperplane(hyp_x_min, hyp_x_max, self.w, self.b, 1, 'k')
 		# negative support vector hyperplane
-		#plot_hyperplane(hyp_x_min, hyp_x_max, self.w, self.b, -1, 'k')
+		plot_hyperplane(hyp_x_min, hyp_x_max, self.w, self.b, -1, 'k')
 		# decision boundary
-		#plot_hyperplane(hyp_x_min, hyp_x_max, self.w, self.b, 0, 'y--')
+		plot_hyperplane(hyp_x_min, hyp_x_max, self.w, self.b, 0, 'y--')
 		
+		axes = plt.gca()
+		axes.set_xlim([hyp_x_min,hyp_x_max])
+		axes.set_ylim([hyp_x_min,hyp_x_max])
 		plt.show()
 
 data_dict = {-1:np.array([[1,7],
