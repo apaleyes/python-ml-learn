@@ -4,3 +4,4 @@
 4. Get more on kernels
 5. Implement OVO and/or OVR strategies for SVM
 6. Randomize K Means centroids selection - DONE
+7. Think of better way of calculating radius and centroid proximity for mean shift

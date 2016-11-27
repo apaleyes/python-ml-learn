@@ -24,6 +24,9 @@ class Mean_Shift:
 	def fit(self, data):
 
 		if self.radius is None:
+			# This is not optimal as it depend on where points are related to (0,0)
+			# TODO: optimize
+
 			# shift all data to first quadrant to calculate radius
 			shift_vector = np.amin(data, axis=0)
 			shifted_data = data - shift_vector
@@ -61,6 +64,9 @@ class Mean_Shift:
 			uniques = sorted(new_centroids)
 			i = 0
 			while i < len(uniques):
+				# This does not reacognize really close centroids
+				# Because radius can be even smaller
+				# TODO: optimize
 				uniques[i+1:] = [c for c in uniques[i+1:] if np.linalg.norm(np.array(uniques[i]) - np.array(c)) > self.radius]
 				i+=1
 
