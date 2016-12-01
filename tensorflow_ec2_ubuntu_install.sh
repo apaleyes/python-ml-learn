@@ -12,6 +12,7 @@ rm cuda-repo-ubuntu1410_7.0-28_amd64.deb
 sudo apt-get update
 sudo apt-get install -y cuda
 
+curl -O http://developer.download.nvidia.com/compute/redist/cudnn/v2/cudnn-6.5-linux-x64-v2.tgz
 tar -zxf cudnn-6.5-linux-x64-v2.tgz && rm cudnn-6.5-linux-x64-v2.tgz
 sudo cp -R cudnn-6.5-linux-x64-v2/lib* /usr/local/cuda/lib64/
 sudo cp cudnn-6.5-linux-x64-v2/cudnn.h /usr/local/cuda/include/
@@ -36,14 +37,17 @@ https://github.com/bazelbuild/bazel/releases/download/0.3.2/bazel-0.3.2-installe
 chmod +x bazel-0.3.2-installer-linux-x86_64.sh
 ./bazel-0.3.2-installer-linux-x86_64.sh --user
 rm bazel-0.3.2-installer-linux-x86_64.sh
-PATH=$PATH:/
+PATH=$PATH:/ <path to bazel goes here>
 
 git clone --recurse-submodules https://github.com/tensorflow/tensorflow
 cd tensorflow
-#Accept defaults everywhere
+# Accept defaults everywhere except for:
+# CUDA support - Y
+# cuDNN version - 6.5
+# Cuda compute capabilities - 3.0
 TF_UNOFFICIAL_SETTING=1 ./configure
 
- # TODO
+# TODO
 bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
 bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
 bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
