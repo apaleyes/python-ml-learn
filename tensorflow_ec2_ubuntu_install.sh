@@ -33,11 +33,11 @@ sudo apt-get install -y oracle-java8-installer
 
 # Make sue bazel verison is right
 sudo apt-get install pkg-config zip g++ zlib1g-dev
-https://github.com/bazelbuild/bazel/releases/download/0.3.2/bazel-0.3.2-installer-linux-x86_64.sh
+wget https://github.com/bazelbuild/bazel/releases/download/0.3.2/bazel-0.3.2-installer-linux-x86_64.sh
 chmod +x bazel-0.3.2-installer-linux-x86_64.sh
 ./bazel-0.3.2-installer-linux-x86_64.sh --user
 rm bazel-0.3.2-installer-linux-x86_64.sh
-PATH=$PATH:/ <path to bazel goes here>
+PATH=$PATH:/home/ubuntu/bin
 
 git clone --recurse-submodules https://github.com/tensorflow/tensorflow
 cd tensorflow
