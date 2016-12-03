@@ -41,14 +41,21 @@ PATH=$PATH:/home/ubuntu/bin
 
 git clone --recurse-submodules https://github.com/tensorflow/tensorflow
 cd tensorflow
-# Accept defaults everywhere except for:
+# If want CUDA, accept defaults everywhere except for:
 # CUDA support - Y
 # cuDNN version - 6.5
 # Cuda compute capabilities - 3.0
+# For setup without CUDA, just accept all defaults
 TF_UNOFFICIAL_SETTING=1 ./configure
 
-# TODO
+# without CUDA
+bazel build -c opt //tensorflow/cc:tutorials_example_trainer
+bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+sudo pip install --upgrade /tmp/tensorflow_pkg/tensorflow-0.12.0rc0-cp27-none-linux_x86_64.whl
+
+# with CUDA
 bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
 bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
 bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-sudo pip install --upgrade /tmp/tensorflow_pkg/tensorflow-0.6.0-cp27-none-linux_x86_64.whl
+sudo pip install --upgrade /tmp/tensorflow_pkg/tensorflow-0.12.0rc0-cp27-none-linux_x86_64.whl
