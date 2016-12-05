@@ -34,9 +34,34 @@ def neural_network_model(data):
 	output = tf.add(tf.matmul(layer_input, layer_definitions[-1]['weights']), layer_definitions[-1]['biases'])
 	return output
 
-sample_data = tf.reshape([0.0] * image_pixels, [-1, image_pixels])
-sample_result = neural_network_model(sample_data)
+def train_neural_network(x, y):
+	prediction = neural_network_model(x)
+	cost = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(prediction, y) )
+	optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-with tf.Session() as session:
-	session.run(tf.global_variables_initializer())
-	print(session.run(sample_result))
+	n_epochs = 10
+	n_batches = int(mnist.train.num_examples / batch_size)
+	with tf.Session() as session:
+		session.run(tf.global_variables_initializer())
+
+		for epoch in range(n_epochs):
+			epoch_loss = 0.0
+			for _ in range(n_batches):
+				epoch_x, epoch_y = mnist.train.next_batch(batch_size)
+				_, c = session.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
+				epoch_loss += c
+			print('Epoch', epoch, 'completed out of', n_epochs, ". Loss:", epoch_loss)
+
+		correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+		accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+		print('Accuracy:', accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
+
+train_neural_network(x, y)
+
+# Simple sanity testing code
+# sample_data = tf.reshape([0.0] * image_pixels, [-1, image_pixels])
+# sample_result = neural_network_model(sample_data)
+
+# with tf.Session() as session:
+# 	session.run(tf.global_variables_initializer())
+# 	print(session.run(sample_result))
