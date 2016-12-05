@@ -38,4 +38,5 @@ sample_data = tf.reshape([0.0] * image_pixels, [-1, image_pixels])
 sample_result = neural_network_model(sample_data)
 
 with tf.Session() as session:
+	session.run(tf.global_variables_initializer())
 	print(session.run(sample_result))
