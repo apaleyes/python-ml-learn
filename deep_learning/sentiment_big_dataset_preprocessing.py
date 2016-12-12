@@ -65,6 +65,26 @@ def create_lexicon(fin, lexicon_pickle):
 	print("Created lexicon")
 
 
+def vectorize_line(line, lexicon):
+	label = line.split(":::")[0]
+	tweet = line.split(":::")[1]
+	current_tokens = word_tokenize(tweet)
+	current_words = [lemmatizer.lemmatize(t) for t in current_tokens]
+
+	features = np.zeros(len(lexicon))
+
+	for word in current_words:
+		if word in lexicon:
+			index_value = lexicon.index(word)
+			# or try += 1 here
+			features[index_value] = 1
+
+	features = list(features)
+	labels = eval(label)
+
+	return features, labels
+
+
 def convert_data_to_vector(fin, lexicon_pickle, fout):
 	with open(lexicon_pickle, 'rb') as f:
 		lexicon = pickle.load(f)
@@ -74,35 +94,24 @@ def convert_data_to_vector(fin, lexicon_pickle, fout):
 		i = 0
 		for line in f:
 			i += 1
-			label = line.split(":::")[0]
-			tweet = line.split(":::")[1]
-			current_tokens = word_tokenize(tweet)
-			current_words = [lemmatizer.lemmatize(t) for t in current_tokens]
-
-			features = np.zeros(len(lexicon))
-
-			for word in current_words:
-				if word in lexicon:
-					index_value = lexicon.index(word)
-					# or try += 1 here
-					features[index_value] = 1
-
-			features = list(features)
-			outline = "{}::{}".format(str(features), str(label))
+			features, labels = vectorize_line(line, lexicon)
+			outline = "{}::{}".format(str(features), str(labels))
 			outfile.write(outline)
 
 
-def shuffle_data(fin):
+def shuffle_data(fin, fout):
 	lines = open(fin).readlines()
 	random.shuffle(lines)
-	open(fin, 'w').writelines(lines)
+	open(fout, 'w').writelines(lines)
 
 
-format_input('training.1600000.processed.noemoticon.csv','train_set.txt')
-format_input('testdata.manual.2009.06.14.csv','test_set.txt')
+if __name__ == '__main__':
 
-create_lexicon('train_set.txt', 'lexicon.pickle')
+	format_input('training.1600000.processed.noemoticon.csv','train_set.txt')
+	format_input('testdata.manual.2009.06.14.csv','test_set.txt')
 
-convert_data_to_vector('test_set.txt', 'lexicon.pickle', 'vectorized_test_data.txt')
+	create_lexicon('train_set.txt', 'lexicon.pickle')
 
-shuffle_data('train_set.txt')
+	convert_data_to_vector('test_set.txt', 'lexicon.pickle', 'vectorized_test_data.txt')
+
+	shuffle_data('train_set.txt', 'train_set_shuffled.txt')

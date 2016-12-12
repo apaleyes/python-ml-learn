@@ -2,12 +2,14 @@ import tensorflow as tf
 import pickle
 import numpy as np
 import os.path
+from sentiment_big_dataset_preprocessing import vectorize_line
 
 n_nodes_hl1 = 500
 n_nodes_hl2 = 500
 
 n_classes = 2
 n_epochs = 10
+batch_size = 32
 
 x = tf.placeholder('float')
 y = tf.placeholder('float')
@@ -16,6 +18,7 @@ with open('lexicon.pickle', 'rb') as f:
 	lexicon = pickle.load(f)
 
 input_length = len(lexicon)
+tf_log = "tf.log"
 
 def neural_network_model(data):
     input_sizes = [input_length, n_nodes_hl1, n_nodes_hl2]
@@ -37,3 +40,61 @@ def neural_network_model(data):
 
     output = tf.add(tf.matmul(layer_input, layer_definitions[-1]['weights']), layer_definitions[-1]['biases'])
     return output
+
+def train_neural_network(x, y):
+    prediction = neural_network_model(x)
+    cost = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(prediction, y) )
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cost)
+
+    tf.global_variables_initializer()
+    saver = tf.train.Saver()
+
+    with tf.Session() as session:
+        session.run(tf.global_variables_initializer())
+        if os.path.exists(tf_log):
+            epoch = int(open(tf_log, 'r').readlines()[-1])
+        else:
+            epoch = 1
+
+        while epoch <= n_epochs:
+            print('Starting epoch ', epoch)
+            if epoch != 1:
+                saver.restore(session, "model.ckpt")
+            epoch_loss = 1
+
+            with open("train_set_shuffled.txt", buffering=200000, encoding="latin-1") as f:
+                batch_x = []
+                batch_y = []
+                batches_run = 0
+                for line in f:
+                    line_x, line_y = vectorize_line(line, lexicon)
+                    batch_x.append(line_x)
+                    batch_y.append(line_y)
+                    if len(batch_x) >= batch_size:
+                        _, c = session.run([optimizer, cost], feed_dict={x: np.array(batch_x), y: np.array(batch_y)})
+                        epoch_loss += c
+                        batch_x = []
+                        batch_y = []
+                        batches_run += 1
+
+                        if (batches_run/100).is_integer():
+                            print('Batch run ', batches_run, ". Epoch loss ", epoch_loss)
+
+            saver.save(session, "model.ckpt")
+            print("Epoch ", epoch, "completed out of ", n_epochs)
+            with open(tf_log, 'a') as f:
+                f.write(epoch)
+
+            epoch += 1
+
+
+# def test_neural_network():
+#     prediction = neural_network_model()
+#     with tf.Session() as session:
+#         session.run(tf.global_variables_initializer())
+
+
+
+
+train_neural_network(x, y)
+
