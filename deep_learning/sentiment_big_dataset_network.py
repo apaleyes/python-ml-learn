@@ -8,7 +8,7 @@ n_nodes_hl1 = 500
 n_nodes_hl2 = 500
 
 n_classes = 2
-n_epochs = 10
+n_epochs = 5
 batch_size = 32
 
 x = tf.placeholder('float')
@@ -19,6 +19,7 @@ with open('lexicon.pickle', 'rb') as f:
 
 input_length = len(lexicon)
 tf_log = "tf.log"
+checkpoint_path = "./model.ckpt"
 
 def neural_network_model(data):
     input_sizes = [input_length, n_nodes_hl1, n_nodes_hl2]
@@ -52,14 +53,14 @@ def train_neural_network(x, y):
     with tf.Session() as session:
         session.run(tf.global_variables_initializer())
         if os.path.exists(tf_log):
-            epoch = int(open(tf_log, 'r').readlines()[-1])
+            epoch = int(open(tf_log, 'r').readlines()[-1]) + 1
         else:
             epoch = 1
 
         while epoch <= n_epochs:
             print('Starting epoch ', epoch)
             if epoch != 1:
-                saver.restore(session, "model.ckpt")
+                saver.restore(session, checkpoint_path)
             epoch_loss = 1
 
             with open("train_set_shuffled.txt", buffering=200000, encoding="latin-1") as f:
@@ -77,13 +78,13 @@ def train_neural_network(x, y):
                         batch_y = []
                         batches_run += 1
 
-                        if (batches_run/100).is_integer():
+                        if (batches_run/1000).is_integer():
                             print('Batch run ', batches_run, ". Epoch loss ", epoch_loss)
 
-            saver.save(session, "model.ckpt")
+            saver.save(session, checkpoint_path)
             print("Epoch ", epoch, "completed out of ", n_epochs)
             with open(tf_log, 'a') as f:
-                f.write(epoch)
+                f.write(str(epoch))
 
             epoch += 1
 
