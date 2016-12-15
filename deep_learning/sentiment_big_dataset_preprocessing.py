@@ -95,7 +95,7 @@ def convert_data_to_vector(fin, lexicon_pickle, fout):
 		for line in f:
 			i += 1
 			features, labels = vectorize_line(line, lexicon)
-			outline = "{}::{}".format(str(features), str(labels))
+			outline = "{}::{}\n".format(str(features), str(labels))
 			outfile.write(outline)
 
 

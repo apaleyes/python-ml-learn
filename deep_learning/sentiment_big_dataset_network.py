@@ -89,13 +89,35 @@ def train_neural_network(x, y):
             epoch += 1
 
 
-# def test_neural_network():
-#     prediction = neural_network_model()
-#     with tf.Session() as session:
-#         session.run(tf.global_variables_initializer())
+def test_neural_network():
+    x = tf.placeholder('float')
+    y = tf.placeholder('float')
+    prediction = neural_network_model(x)
+    
+    tf.global_variables_initializer()
+    saver = tf.train.Saver()
 
+    with tf.Session() as session:
+        session.run(tf.global_variables_initializer())
+        saver.restore(session, checkpoint_path)
 
+        correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
 
+        feature_sets = []
+        labels = []
+        with open('vectorized_test_data.txt') as f:
+            for line in f:
+                features = list(eval(line.split('::')[0]))
+                label = list(eval(line.split('::')[1]))
+
+                feature_sets.append(features)
+                labels.append(label)
+
+        test_x = np.array(feature_sets)
+        test_y = np.array(labels)
+        print("Accuracy:", accuracy.eval({x: test_x, y: test_y}))
 
 train_neural_network(x, y)
+test_neural_network()
 
