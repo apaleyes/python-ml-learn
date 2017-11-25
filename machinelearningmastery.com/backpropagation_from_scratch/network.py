@@ -107,3 +107,7 @@ def train_network(network, training_set, learning_rate, n_epoch, n_outputs):
             epoch_error += sum([(e - o)**2 for (e, o) in zip(expected_output, outputs)])
         print("> epoch: {}, error: {:.3}".format(epoch, epoch_error))
 
+def predict(network, input_row):
+    outputs = forward_propagate(network, input_row)
+    return outputs.index(max(outputs))
+
