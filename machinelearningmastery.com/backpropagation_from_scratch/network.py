@@ -82,12 +82,28 @@ def update_weights(network, input_row, learning_rate):
     layer_input = input_row + [1.0]
     for layer in network:
         next_layer_input = []
-        for (i, neuron) in enumerate(layer):
-            new_weights = [w + learning_rate * neuron["delta"] * layer_input[i] for w in neuron["weights"]]
+        for neuron in layer:
+            new_weights = [w + learning_rate * neuron["delta"] * layer_input[i] for (i, w) in enumerate(neuron["weights"])]
             neuron["weights"] = new_weights
 
             next_layer_input.append(neuron["output"])
         layer_input = next_layer_input + [1.0]
 
+def train_network(network, training_set, learning_rate, n_epoch, n_outputs):
+    '''
+    Train network for a given number of epochs
+    Epoch is a single walk through the whole training set
+    '''
+    for epoch in range(1, n_epoch + 1):
+        epoch_error = 0.0
+        for input_row in training_set:
+            expected_output = [0.0 for _ in range(n_outputs)]
+            expected_output[input_row[-1]] = 1.0
 
+            outputs = forward_propagate(network, input_row[:-1])
+            backward_propagate_error(network, expected_output)
+            update_weights(network, input_row[:-1], learning_rate)
+
+            epoch_error += sum([(e - o)**2 for (e, o) in zip(expected_output, outputs)])
+        print("> epoch: {}, error: {:.3}".format(epoch, epoch_error))
 
