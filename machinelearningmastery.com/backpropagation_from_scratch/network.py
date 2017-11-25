@@ -35,6 +35,13 @@ def transfer(activation):
     '''
     return 1.0 / (1.0 + math.exp(-activation))
 
+def transfer_derivative(output):
+    '''
+    Derivative of the transfer given its output
+    Derivative of sigmoid f(x) is f(x)*(1-f(x))
+    '''
+    return output * (1 - output)
+
 def forward_propagate(network, input_row):
     ''' Forward propagation through a given network given a single row of input values '''
     layer_input = input_row
@@ -47,6 +54,25 @@ def forward_propagate(network, input_row):
         layer_input = layer_output[:]
 
     return layer_output
+
+def backward_propagate_error(network, expected):
+    ''' Calculation of the error using backward propagation '''
+    output_layer = network[-1]
+    if len(expected) != len(output_layer):
+        raise ValueError("Expected output length {} does not match output layer dimension {}".format(len(expected, len(output_layer))))
+
+    for (i, neuron) in enumerate(output_layer):
+        error = (expected[i] - neuron["output"]) * transfer_derivative(neuron["output"])
+        neuron["delta"] = error
+
+    for (i, layer) in reversed(list(enumerate(network))[:-1]):
+        layer_index = i
+        for (j, neuron) in enumerate(layer):
+            error = 0
+            for next_layer_neuron in network[layer_index + 1]:
+                error += next_layer_neuron["delta"] * next_layer_neuron["weights"][j] * \
+                         transfer_derivative(neuron["output"])
+            neuron["delta"] = error
 
 
 
