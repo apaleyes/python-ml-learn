@@ -2,7 +2,7 @@ from random import random
 import math
 
 def initialize_network(n_inputs, n_hidden, n_ouputs):
-    ''' Initializes a network is a single hidden layer '''
+    ''' Initializes a network with a single hidden layer '''
     hidden_layer = [{'weights': [random() for _ in range(n_inputs + 1)]} for _ in range(n_hidden)]
     output_layer = [{'weights': [random() for _ in range(n_hidden + 1)]} for _ in range(n_ouputs)]
     network = [hidden_layer, output_layer]
@@ -111,3 +111,15 @@ def predict(network, input_row):
     outputs = forward_propagate(network, input_row)
     return outputs.index(max(outputs))
 
+def back_propagation(train, test, l_rate, n_epoch, n_hidden):
+    ''' Backpropagation Algorithm With Stochastic Gradient Descent '''
+
+    n_inputs = len(train[0]) - 1
+    n_outputs = len(set([row[-1] for row in train]))
+    network = initialize_network(n_inputs, n_hidden, n_outputs)
+    train_network(network, train, l_rate, n_epoch, n_outputs)
+    predictions = []
+    for row in test:
+        prediction = predict(network, row[:-1])
+        predictions.append(prediction)
+    return predictions

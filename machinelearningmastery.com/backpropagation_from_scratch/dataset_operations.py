@@ -17,11 +17,22 @@ def load_csv(filename):
 
 def convert_to_float(data):
     '''
-    Converts all columns in the dataset into floats.
+    Converts all columns except last in the dataset into floats.
     Works in place, altering the given dataset
     '''
     for i, _ in enumerate(data):
-        data[i] = [float(x) for x in data[i]]
+        new_row = [float(x) for x in data[i][:-1]] + [data[i][-1]]
+        data[i] = new_row
+
+def convert_to_int(data):
+    ''' Converts last column to int '''
+    class_values = [row[-1] for row in data]
+    unique = set(class_values)
+    lookup = {}
+    for i, value in enumerate(unique):
+        lookup[value] = i
+    for row in data:
+        row[-1] = lookup[row[-1]]
 
 def dataset_minmax(data):
     '''
@@ -30,7 +41,7 @@ def dataset_minmax(data):
     '''
     transposed = map(list, zip(*data))
     minmaxes = []
-    for column in columns[:-1]:
+    for column in transposed[:-1]:
         column_minmax = {
             'min': min(column),
             'max': max(column)
@@ -44,7 +55,7 @@ def normalize_dataset(data):
     '''
     minmaxes = dataset_minmax(data)
 
-    for row in dataset:
+    for row in data:
         for i, v in enumerate(row[:-1]):
             column_range = minmaxes[i]['max'] - minmaxes[i]['min']
             row[i] = (v - minmaxes[i]['min']) / column_range
