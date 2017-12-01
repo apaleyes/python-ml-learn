@@ -4,7 +4,7 @@ from network import *
 
 # test forward propagation
 seed(1)
-network = initialize_network(2, 1, 2)
+network = initialize_network(2, [1], 2)
 output = forward_propagate(network, [1, 0])
 print("Layers:")
 for layer in network:
@@ -40,7 +40,7 @@ dataset = \
     [7.673756466,3.508563011,1]]
 n_inputs = len(dataset[0]) - 1
 n_outputs = len(set([row[-1] for row in dataset]))
-network = initialize_network(n_inputs, 2, n_outputs)
+network = initialize_network(n_inputs, [4, 4], n_outputs)
 train_network(network, dataset, 0.5, 20, n_outputs)
 for layer in network:
     print(layer)

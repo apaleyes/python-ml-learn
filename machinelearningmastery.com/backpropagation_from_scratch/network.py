@@ -1,11 +1,15 @@
 from random import random
 import math
 
-def initialize_network(n_inputs, n_hidden, n_ouputs):
-    ''' Initializes a network with a single hidden layer '''
-    hidden_layer = [{'weights': [random() for _ in range(n_inputs + 1)]} for _ in range(n_hidden)]
-    output_layer = [{'weights': [random() for _ in range(n_hidden + 1)]} for _ in range(n_ouputs)]
-    network = [hidden_layer, output_layer]
+def initialize_network(n_inputs, n_hidden_list, n_ouputs):
+    ''' Initializes a network '''
+    network = []
+    input_dims = [n_inputs] + n_hidden_list
+    output_dims = n_hidden_list + [n_ouputs]
+    for n_input, n_output in zip(input_dims, output_dims):
+        layer = [{'weights': [random() for _ in range(n_input + 1)]} for _ in range(n_output)]
+        network.append(layer)
+
     return network
 
 def activate(weights, inputs):
@@ -65,8 +69,7 @@ def backward_propagate_error(network, expected):
         error = (expected[i] - neuron["output"]) * transfer_derivative(neuron["output"])
         neuron["delta"] = error
 
-    for (i, layer) in reversed(list(enumerate(network))[:-1]):
-        layer_index = i
+    for (layer_index, layer) in reversed(list(enumerate(network))[:-1]):
         for (j, neuron) in enumerate(layer):
             error = 0
             for next_layer_neuron in network[layer_index + 1]:
@@ -111,12 +114,12 @@ def predict(network, input_row):
     outputs = forward_propagate(network, input_row)
     return outputs.index(max(outputs))
 
-def back_propagation(train, test, l_rate, n_epoch, n_hidden):
+def back_propagation(train, test, l_rate, n_epoch, n_hidden_list):
     ''' Backpropagation Algorithm With Stochastic Gradient Descent '''
 
     n_inputs = len(train[0]) - 1
     n_outputs = len(set([row[-1] for row in train]))
-    network = initialize_network(n_inputs, n_hidden, n_outputs)
+    network = initialize_network(n_inputs, n_hidden_list, n_outputs)
     train_network(network, train, l_rate, n_epoch, n_outputs)
     predictions = []
     for row in test:
