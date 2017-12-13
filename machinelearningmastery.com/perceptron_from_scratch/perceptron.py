@@ -1,14 +1,14 @@
 def predict(input_row, weights):
     """
     Activate perceptron and calculate the output value
-    First weight is assumed to be the bias not corresponding to any input
+    Last weight is assumed to be the bias not corresponding to any input
     """
 
     if len(input_row) + 1 != len(weights):
         raise ValueError("Input length should be {} (number of weights minus 1), received {}".format(len(weights) - 1, len(input_row)))
 
-    bias = weights[0]
-    activation = sum([i * w for (i, w) in zip(input_row, weights[1:])]) + bias
+    bias = weights[-1]
+    activation = sum([i * w for (i, w) in zip(input_row, weights[:-1])]) + bias
     output = 1.0 if activation >= 0.0 else 0.0
     return output
 
@@ -19,9 +19,9 @@ def train_weights(train_data, learning_rate, n_epoch):
     """
 
     # -1 because train_data includes labels
-    number_of_weights = len(train_data[0]) - 1
+    number_of_input_weights = len(train_data[0]) - 1
     # +1 for bias
-    weights = [0.0] * (number_of_weights + 1)
+    weights = [0.0] * (number_of_input_weights + 1)
 
     for epoch in range(n_epoch):
         sum_error = 0.0
@@ -32,10 +32,10 @@ def train_weights(train_data, learning_rate, n_epoch):
             sum_error += error ** 2
 
             # update bias
-            weights[0] = weights[0] + learning_rate * error
+            weights[-1] = weights[-1] + learning_rate * error
             # update input weights
-            for i in range(1, len(weights)):
-                weights[i] = weights[i] + learning_rate * error * row[i-1]
+            for i in range(0, len(weights) - 1):
+                weights[i] = weights[i] + learning_rate * error * row[i]
 
         print('>epoch={}, learning rate={:.3}, error={:.3}'.format(epoch, learning_rate, sum_error))
 
